@@ -5,55 +5,52 @@
 /*  Darknico - http://www.darknico.com  */
 /*--------------------------------------*/
 
-const St = imports.gi.St;
-const Main = imports.ui.main;
-const Util = imports.misc.util;
+import St from 'gi://St';
+import Gio from 'gi://Gio';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-let icon = null;
-let button = null;
+export default class PoweroffButtonExtension extends Extension {
+    enable() {
+        this._icon = new St.Icon({
+            icon_name: 'system-shutdown',
+            style_class: 'system-status-icon'
+        });
 
-function init() {
+        this._button = new St.Bin({
+            style_class: 'panel-button',
+            reactive: true,
+            can_focus: true,
+            track_hover: true
+        });
 
-}
+        this._button.set_child(this._icon);
+        this._button.connect('button-press-event', this._poweroff.bind(this));
 
-function enable() {
-
-    icon = new St.Icon({
-        icon_name: 'system-shutdown',
-        style_class: 'system-status-icon'
-    });
-
-    button = new St.Bin({
-        style_class: 'panel-button',
-        reactive: true,
-        can_focus: true,
-        track_hover: true
-    });
-
-    button.set_child(icon);
-    button.connect('button-press-event', _poweroff);
-
-    Main.panel._rightBox.insert_child_at_index(button, -1);
-}
-
-function disable() {
-    Main.panel._rightBox.remove_child(button);
-    if (icon) {
-        icon.destroy()
-        icon = null;
+        Main.panel._rightBox.insert_child_at_index(this._button, -1);
     }
-    if (button) {
-        button.destroy();
-        button = null;
+
+    disable() {
+        Main.panel._rightBox.remove_child(this._button);
+        if (this._icon) {
+            this._icon.destroy();
+            this._icon = null;
+        }
+        if (this._button) {
+            this._button.destroy();
+            this._button = null;
+        }
     }
-}
 
-
-function _poweroff() {
-    try {
-        Util.trySpawnCommandLine('gnome-session-quit --power-off');
-    } catch (err) {
-        Main.notify("Error " + err);
+    _poweroff() {
+        try {
+            let proc = Gio.Subprocess.new(
+                ['systemctl', 'poweroff'],
+                Gio.SubprocessFlags.NONE
+            );
+            proc.wait_async(null, null);
+        } catch (err) {
+            Main.notify('Poweroff Error', String(err));
+        }
     }
 }
-
