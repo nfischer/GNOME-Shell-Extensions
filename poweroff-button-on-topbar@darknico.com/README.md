@@ -11,10 +11,12 @@ License
 Requirements
 ==============
 
-- GNOME Shell 3.36+
+- GNOME Shell 45+
 
 Changelog
 ==============
+- v6
+  - Added gnome 45-47 support, dropped support for all earlier gnome versions (tested on Ubuntu 24.04)
 - v5 (18-05-2022)
   - Added gnome 41/42 support (tested on Ubuntu 22.04)
 - v4 (18-10-2021)

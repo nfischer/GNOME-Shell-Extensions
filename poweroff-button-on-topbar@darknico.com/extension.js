@@ -44,11 +44,10 @@ export default class PoweroffButtonExtension extends Extension {
 
     _poweroff() {
         try {
-            let proc = Gio.Subprocess.new(
-                ['systemctl', 'poweroff'],
+            Gio.Subprocess.new(
+                ['gnome-session-quit', '--power-off'],
                 Gio.SubprocessFlags.NONE
             );
-            proc.wait_async(null, null);
         } catch (err) {
             Main.notify('Poweroff Error', String(err));
         }
